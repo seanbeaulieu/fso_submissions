@@ -10,8 +10,6 @@ const Header = (props) => (
   <h1> {props.text} </h1>
 )
 
-
-
 const App = () => {
   const anecdotes = [
     'If it hurts, do it more often.',
