@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import personService from './services/phones'
+import Person from './components/Person'
 
 // search filter
 const SearchFilter = (props) => {
@@ -44,17 +46,15 @@ const Persons = (props) => {
   return (
     <div>
       {props.filteredNames.map(person => 
-        <div key={person.id}>
-        {person.name} {person.number}
-        </div>
+        <Person 
+          key={person.id}
+          person={person}
+          deletePerson={() => props.deletePersonWeb(person.id)}
+        />
       )}
     </div>
   )
 }
-
-
-
-
 
 
 const App = () => {
@@ -67,11 +67,10 @@ const App = () => {
 
   const hook = () => {
     console.log('effect')
-    axios
-      .get('http://localhost:8001/persons')
-      .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
+    personService
+      .getAllPersons()
+      .then(initialPersons => {
+          setPersons(initialPersons)
       })
   }
 
@@ -95,7 +94,7 @@ const App = () => {
     const personObject = {
       name: newName,
       number: newNumber,
-      id: persons.length + 1,
+
     }
     if (persons.some(person => person.name === newName)) {
         alert(`${newName} is already added to phonebook`)
@@ -103,11 +102,33 @@ const App = () => {
     else if (persons.some(person => person.number === newNumber)) {
       alert(`${newNumber} is already added to phonebook`)
       }
+
     else {
-      setPersons(persons.concat(personObject))
-      setNewName('')
-      setNewNumber('')
-      }
+      personService
+      .addPerson(personObject)
+      .then(returnPerson => {
+        setPersons(persons.concat(returnPerson))
+        setNewName('')
+        setNewNumber('')
+      })
+    }
+    
+  }
+
+  const deletePersonWeb = id => {
+    // event.preventDefault()
+    const person = persons.find(n => n.id === id)
+    // console.log(person)
+    
+    confirm('Delete ' + person.name + '?')
+
+    personService
+      .deletePerson(id)
+      .then(returnPerson => {
+        setPersons(persons.filter(person => person.id !== returnPerson.id))
+        // console.log('here')
+      })
+
   }
 
   const filteredNames = persons.some(person => person.name === newName)
@@ -126,7 +147,7 @@ const App = () => {
 
       <h2>Numbers</h2>
 
-      <Persons filteredNames={filteredNames} />
+      <Persons filteredNames={filteredNames} deletePersonWeb={deletePersonWeb} />
 
     </div>
   )
