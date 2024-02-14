@@ -96,13 +96,30 @@ const App = () => {
       number: newNumber,
 
     }
+
+    let person_id = ''
     if (persons.some(person => person.name === newName)) {
-        alert(`${newName} is already added to phonebook`)
-      }
-    else if (persons.some(person => person.number === newNumber)) {
-      alert(`${newNumber} is already added to phonebook`)
+      const person = persons.find(person => person.name === newName)
+      // console.log(person)
+      
+      confirm(`${newName} is already added to phonebook, replace the old name with a new one?`)
+
+      // console.log('before put')
+      personService
+        .addPersonPut(personObject, person.id)
+        .then(returnPerson => {
+          setPersons(persons.map(person => person.id === returnPerson.id ? returnPerson : person))
+          setNewName('')
+          setNewNumber('')
+        })
       }
 
+    else if (persons.some(person => person.number === newNumber)) {
+      const person = persons.find(person => person.number === newNumber)
+      person_id = person.id
+      alert(`${newNumber} is already added to phonebook`)
+      }
+      
     else {
       personService
       .addPerson(personObject)
