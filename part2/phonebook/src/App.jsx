@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import personService from './services/phones'
 import Person from './components/Person'
+import Notification from './components/Notification'
 
 // search filter
 const SearchFilter = (props) => {
@@ -56,12 +57,36 @@ const Persons = (props) => {
   )
 }
 
+const Error = ({ message }) => {
+  const notiStyle = {
+    color: 'red',
+    background: 'lightgrey',
+    fontSize: 20,
+    borderStyle: 'solid',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+  }
+
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div style={notiStyle}>
+      {message}
+    </div>
+  )
+}
+
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterName, setFilterNames] = useState('')
+  const [successMessage, setSuccessMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   // effectHook here
 
@@ -97,7 +122,6 @@ const App = () => {
 
     }
 
-    let person_id = ''
     if (persons.some(person => person.name === newName)) {
       const person = persons.find(person => person.name === newName)
       // console.log(person)
@@ -111,6 +135,21 @@ const App = () => {
           setPersons(persons.map(person => person.id === returnPerson.id ? returnPerson : person))
           setNewName('')
           setNewNumber('')
+
+          setSuccessMessage(
+            `Added ${personObject.name}`
+          )
+          setTimeout(() => {
+            setSuccessMessage(null)
+          }, 5000)
+        })
+        .catch(error => {
+          setErrorMessage(
+            `Information of '${person.name}' was already removed from server`
+          )
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
         })
       }
 
@@ -119,7 +158,7 @@ const App = () => {
       person_id = person.id
       alert(`${newNumber} is already added to phonebook`)
       }
-      
+
     else {
       personService
       .addPerson(personObject)
@@ -127,6 +166,12 @@ const App = () => {
         setPersons(persons.concat(returnPerson))
         setNewName('')
         setNewNumber('')
+        setSuccessMessage(
+          `Added ${personObject.name}`
+        )
+        setTimeout(() => {
+          setSuccessMessage(null)
+        }, 5000)
       })
     }
     
@@ -145,6 +190,14 @@ const App = () => {
         setPersons(persons.filter(person => person.id !== returnPerson.id))
         // console.log('here')
       })
+      .catch(error => {
+        setErrorMessage(
+          `Information of '${person.name}' was already removed from server`
+        )
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+      })
 
   }
 
@@ -155,6 +208,9 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+
+      <Notification message={successMessage} />
+      <Error message={errorMessage} />
 
       <SearchFilter filterName={filterName} handleFilterChange={handleFilterChange} />
 

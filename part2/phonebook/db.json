@@ -1,14 +1,3 @@
 {
-  "persons": [
-    {
-      "id": "b38f",
-      "name": "Richard Ron",
-      "number": "023-230031"
-    },
-    {
-      "id": "97b5",
-      "name": "McDonald Dan",
-      "number": "000-112331"
-    }
-  ]
+  "persons": []
 }
